@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "migrate": "npx prisma db push --force-reset && npx prisma db seed",
+    "migrate": "npx prisma db push --force-reset",
+    "seed": "npx prisma db seed",
     "studio": "npx prisma studio",
     "lint": "echo '----- Checking Backend...' && npx prettier --debug-check . && eslint --ext .js . && echo '----- Done!'",
     "fix": "prettier --write . && eslint --fix --ext .js ."
@@ -25,9 +26,11 @@
   },
   "dependencies": {
     "@prisma/client": "^4.12.0",
+    "argon2": "^0.30.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0"
   },
   "rules": {
     "no-console": [

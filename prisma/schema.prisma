@@ -11,7 +11,77 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id              Int        @id @default(autoincrement())
+  firstname       String
+  lastname        String
+  email           String     @unique
+  hashed_password String
+  date_of_birth   DateTime
+  description     String?
+  role            UserRole
+  team            Team       @relation(fields: [teamId], references: [id])
+  teamId          Int
+  company         Company    @relation(fields: [companyId], references: [id])
+  companyId       Int
+  moods           Mood[]
+  feedbacks       FeedBack[]
+
+  @@index([teamId], name: "user_teamId_idx")
+  @@index([companyId], name: "user_companyId_idx")
+}
+
+model Team {
+  id        Int     @id @default(autoincrement())
+  name      String
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId Int
+  users     User[]
+
+  @@index([companyId], name: "team_companyId_idx")
+}
+
+model Company {
+  id    Int    @id @default(autoincrement())
+  name  String
+  teams Team[]
+  users User[]
+}
+
+model Mood {
+  id       Int      @id @default(autoincrement())
+  author   User     @relation(fields: [authorId], references: [id])
+  authorId Int
+  mood     String
+  datetime DateTime
+
+  @@index([authorId], name: "mood_authorId_idx")
+}
+
+model Activity {
+  id          Int        @id @default(autoincrement())
+  name        String
+  video       String
+  description String
+  type        String
+  features    String
+  feedbacks   FeedBack[]
+}
+
+model FeedBack {
+  id         Int      @id @default(autoincrement())
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   Int
+  activity   Activity @relation(fields: [activityId], references: [id])
+  activityId Int
+  datetime   DateTime
+  review     String
+
+  @@index([authorId], name: "feedback_authorId_idx")
+  @@index([activityId], name: "feedback_activityId_idx")
+}
+
+enum UserRole {
+  employee
+  chief
+  admin
 }
