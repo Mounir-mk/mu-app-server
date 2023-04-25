@@ -1,19 +1,21 @@
 const users = [
   {
-    name: "John Doe",
     email: "johndoe@mail.com",
+    hashed_password:
+      "$argon2id$v=19$m=16,t=2,p=1$ZTNYU1U2cjRyNUJuTkJzVA$lgBqAYdbLX+j1Bc6DP+WAw",
+    role: "admin",
   },
   {
-    name: "Jane Doe",
-    email: "janedoe@mail.com",
+    email: "jessy.hazart@outlook.fr",
+    hashed_password:
+      "$argon2id$v=19$m=16,t=2,p=1$ZTNYU1U2cjRyNUJuTkJzVA$lgBqAYdbLX+j1Bc6DP+WAw",
+    role: "employee",
   },
   {
-    name: "John Smith",
-    email: "johnsmith@mail.com",
-  },
-  {
-    name: "Jane Smith",
-    email: "janesmith@mail.com",
+    email: "chef@mail.com",
+    hashed_password:
+      "$argon2id$v=19$m=16,t=2,p=1$ZTNYU1U2cjRyNUJuTkJzVA$lgBqAYdbLX+j1Bc6DP+WAw",
+    role: "chief",
   },
 ];
 

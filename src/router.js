@@ -7,7 +7,13 @@ router.get("/", (req, res) => {
 });
 
 const userController = require("./controllers/userControllers");
+const { verifyPassword } = require("./services/auth");
 
 router.get("/users", userController.browse);
+router.post(
+  "/users/login",
+  userController.getUserByEmailWithPasswordAndPassToNext,
+  verifyPassword
+);
 
 module.exports = router;

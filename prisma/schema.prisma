@@ -12,17 +12,17 @@ datasource db {
 
 model User {
   id              Int        @id @default(autoincrement())
-  firstname       String
-  lastname        String
+  firstname       String?
+  lastname        String?
   email           String     @unique
   hashed_password String
-  date_of_birth   DateTime
+  date_of_birth   DateTime?
   description     String?
   role            UserRole
-  team            Team       @relation(fields: [teamId], references: [id])
-  teamId          Int
-  company         Company    @relation(fields: [companyId], references: [id])
-  companyId       Int
+  team            Team?       @relation(fields: [teamId], references: [id])
+  teamId          Int?
+  company         Company?    @relation(fields: [companyId], references: [id])
+  companyId       Int?
   moods           Mood[]
   feedbacks       FeedBack[]
 
