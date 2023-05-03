@@ -19,9 +19,9 @@ model User {
   date_of_birth   DateTime?
   description     String?
   role            UserRole
-  team            Team?       @relation(fields: [teamId], references: [id])
+  team            Team?      @relation(fields: [teamId], references: [id])
   teamId          Int?
-  company         Company?    @relation(fields: [companyId], references: [id])
+  company         Company?   @relation(fields: [companyId], references: [id])
   companyId       Int?
   moods           Mood[]
   feedbacks       FeedBack[]
@@ -31,18 +31,31 @@ model User {
 }
 
 model Team {
-  id        Int     @id @default(autoincrement())
-  name      String
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId Int
-  users     User[]
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  max_size   Int
+  company    Company?     @relation(fields: [companyId], references: [id])
+  companyId  Int?
+  users      User[]
+  Invitation Invitation[]
 
   @@index([companyId], name: "team_companyId_idx")
 }
 
+model Invitation {
+  id          Int    @id @default(autoincrement())
+  team        Team   @relation(fields: [teamId], references: [id])
+  teamId      Int
+  usage_limit Int
+  used_times  Int    @default(0)
+  token       String @unique
+
+  @@index([teamId], name: "invitation_teamId_idx")
+}
+
 model Company {
   id    Int    @id @default(autoincrement())
-  name  String
+  name  String @unique
   teams Team[]
   users User[]
 }

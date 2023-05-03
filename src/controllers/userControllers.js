@@ -5,7 +5,10 @@ const prisma = new PrismaClient();
 const browse = async (req, res) => {
   try {
     const users = await prisma.user.findMany();
-    users.forEach((user) => delete user.hashed_password);
+    users.forEach((user) => {
+      const userToModify = user;
+      delete userToModify.hashed_password;
+    });
     res.json(users);
   } catch (err) {
     console.error(err);
