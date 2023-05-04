@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 const { generatePassword } = require("../services/generatePassword");
 const { sendEmail } = require("../services/emailSending");
 
+// Create a team with a manager and an invitation link to invite other users, this controller is used by the admin only
 const createTeam = async (req, res) => {
   const {
     managerFirstname,
@@ -111,9 +112,45 @@ const createTeam = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
+async function browse(req, res) {
+  try {
+    const teams = await prisma.team.findMany({
+      include: {
+        company: true,
+        users: true,
+        invitations: true,
+      },
+    });
+
+    const teamsWithDetails = teams.map((team) => {
+      const manager = team.users.find((user) => user.role === "chief");
+      const numberOfEmployees = team.users.length;
+
+      return {
+        id: team.id,
+        name: team.name,
+        managerName: manager
+          ? `${manager.firstname} ${manager.lastname}`
+          : "Not Assigned",
+        numberOfEmployees,
+        max_size: team.max_size,
+        invitationToken: team.invitations[0]?.token || "No Token",
+        companyName: team.company.name,
+      };
+    });
+
+    res.status(200).json(teamsWithDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 module.exports = {
   createTeam,
+  browse,
 };

@@ -13,10 +13,13 @@ router.get("/", (req, res) => {
 const teamController = require("./controllers/teamControllers");
 
 router.post("/teams", teamController.createTeam);
+router.get("/teams", teamController.browse);
 
 const userController = require("./controllers/userControllers");
-const { verifyPassword } = require("./services/auth");
 
+const { verifyPassword, hashPassword } = require("./services/auth");
+
+router.post("/users", hashPassword, userController.register);
 router.get("/users", userController.browse);
 router.post(
   "/users/login",

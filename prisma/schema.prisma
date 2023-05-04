@@ -31,13 +31,13 @@ model User {
 }
 
 model Team {
-  id         Int          @id @default(autoincrement())
-  name       String       @unique
-  max_size   Int
-  company    Company?     @relation(fields: [companyId], references: [id])
-  companyId  Int?
-  users      User[]
-  Invitation Invitation[]
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  max_size    Int
+  company     Company?     @relation(fields: [companyId], references: [id])
+  companyId   Int?
+  users       User[]
+  invitations Invitation[]
 
   @@index([companyId], name: "team_companyId_idx")
 }
