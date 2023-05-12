@@ -19,12 +19,13 @@ model User {
   date_of_birth   DateTime?
   description     String?
   role            UserRole
-  team            Team?      @relation(fields: [teamId], references: [id])
+  team            Team?      @relation("teamEmployees", fields: [teamId], references: [id])
   teamId          Int?
   company         Company?   @relation(fields: [companyId], references: [id])
   companyId       Int?
   moods           Mood[]
   feedbacks       FeedBack[]
+  managedTeam     Team?
 
   @@index([teamId], name: "user_teamId_idx")
   @@index([companyId], name: "user_companyId_idx")
@@ -34,9 +35,11 @@ model Team {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   max_size    Int
+  manager     User?        @relation(fields: [managerId], references: [id])
+  managerId   Int?         @unique
   company     Company?     @relation(fields: [companyId], references: [id])
   companyId   Int?
-  users       User[]
+  users       User[]       @relation("teamEmployees")
   invitations Invitation[]
 
   @@index([companyId], name: "team_companyId_idx")

@@ -29,24 +29,6 @@ const createTeam = async (req, res) => {
   const generatedPassword = generatePassword();
 
   try {
-    const team = await prisma.team.create({
-      data: {
-        name: `Team - ${(await prisma.team.count()) + 1}`,
-        max_size: parseInt(teamMaxSize, 10),
-        company: {
-          connectOrCreate: {
-            where: {
-              name: companyNameToUse,
-            },
-            create: {
-              name: companyNameToUse,
-            },
-          },
-        },
-      },
-    });
-    console.warn(`Created team: ${team.name}`);
-
     const manager = await prisma.user.create({
       data: {
         firstname: managerFirstname,
@@ -54,11 +36,6 @@ const createTeam = async (req, res) => {
         email: managerEmail,
         hashed_password: await argon2.hash(generatedPassword, hashOptions),
         role: "chief",
-        team: {
-          connect: {
-            name: teamName,
-          },
-        },
         company: {
           connectOrCreate: {
             where: {
@@ -72,6 +49,29 @@ const createTeam = async (req, res) => {
       },
     });
     console.warn(`Created manager: ${manager.email}`);
+
+    const team = await prisma.team.create({
+      data: {
+        name: `Team - ${(await prisma.team.count()) + 1}`,
+        max_size: parseInt(teamMaxSize, 10),
+        manager: {
+          connect: {
+            id: manager.id,
+          },
+        },
+        company: {
+          connectOrCreate: {
+            where: {
+              name: companyNameToUse,
+            },
+            create: {
+              name: companyNameToUse,
+            },
+          },
+        },
+      },
+    });
+    console.warn(`Created team: ${team.name}`);
 
     // Calculate usageLimit by excluding the manager
     const usageLimit = teamMaxSize - 1;
@@ -120,6 +120,7 @@ async function browse(req, res) {
   try {
     const teams = await prisma.team.findMany({
       include: {
+        manager: true,
         company: true,
         users: true,
         invitations: true,
@@ -127,15 +128,13 @@ async function browse(req, res) {
     });
 
     const teamsWithDetails = teams.map((team) => {
-      const manager = team.users.find((user) => user.role === "chief");
       const numberOfEmployees = team.users.length;
 
       return {
         id: team.id,
         name: team.name,
-        managerName: manager
-          ? `${manager.firstname} ${manager.lastname}`
-          : "Not Assigned",
+        managerName:
+          `${team.manager.firstname} ${team.manager.lastname}` || "No Manager",
         numberOfEmployees,
         max_size: team.max_size,
         invitationToken: team.invitations[0]?.token || "No Token",
