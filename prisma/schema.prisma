@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id              Int        @id @default(autoincrement())
-  firstname       String?
-  lastname        String?
-  email           String     @unique
-  hashed_password String
-  date_of_birth   DateTime?
-  description     String?
-  role            UserRole
-  team            Team?      @relation("teamEmployees", fields: [teamId], references: [id])
-  teamId          Int?
-  company         Company?   @relation(fields: [companyId], references: [id])
-  companyId       Int?
-  moods           Mood[]
-  feedbacks       FeedBack[]
-  managedTeam     Team?
+  id                Int                @id @default(autoincrement())
+  firstname         String?
+  lastname          String?
+  email             String             @unique
+  hashed_password   String
+  date_of_birth     DateTime?
+  description       String?
+  role              UserRole
+  team              Team?              @relation("teamEmployees", fields: [teamId], references: [id])
+  teamId            Int?
+  company           Company?           @relation(fields: [companyId], references: [id])
+  companyId         Int?
+  moods             Mood[]
+  feedbacks         FeedBack[]
+  managedTeam       Team?
+  answeredQuestions AnsweredQuestion[]
 
   @@index([teamId], name: "user_teamId_idx")
   @@index([companyId], name: "user_companyId_idx")
@@ -73,6 +74,13 @@ model Mood {
   @@index([authorId], name: "mood_authorId_idx")
 }
 
+model Question {
+  id         Int                @id @default(autoincrement())
+  question   String
+  category   QuestionCategory
+  answeredBy AnsweredQuestion[]
+}
+
 model Activity {
   id          Int        @id @default(autoincrement())
   name        String
@@ -100,4 +108,23 @@ enum UserRole {
   employee
   chief
   admin
+}
+
+model AnsweredQuestion {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+  score      Int
+  datetime   DateTime
+
+  @@index([userId], name: "answeredQuestion_userId_idx")
+  @@index([questionId], name: "answeredQuestion_questionId_idx")
+}
+
+enum QuestionCategory {
+  PHYSICAL_HEALTH
+  MENTAL_HEALTH
+  WORK_LIFE_QUALITY
 }
