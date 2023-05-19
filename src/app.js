@@ -5,6 +5,8 @@ const router = require("./router");
 
 const app = express();
 
+process.env.TZ = "Europe/Paris";
+
 app.use(cors("*"));
 
 app.use(express.json());

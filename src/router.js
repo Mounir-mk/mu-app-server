@@ -1,4 +1,6 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const { refresh, checkRefreshToken } = require("./services/tokens");
 
 const router = express.Router();
 
@@ -17,14 +19,34 @@ router.get("/teams", teamController.browse);
 
 const userController = require("./controllers/userControllers");
 
-const { verifyPassword, hashPassword } = require("./services/auth");
+const {
+  verifyPassword,
+  hashPassword,
+  verifyToken,
+} = require("./services/auth");
 
-router.post("/users", hashPassword, userController.register);
-router.get("/users", userController.browse);
 router.post(
   "/users/login",
   userController.getUserByEmailWithPasswordAndPassToNext,
   verifyPassword
 );
+router.post("/users", hashPassword, userController.register);
+
+const tokenController = require("./controllers/tokenControllers");
+
+router.get("/refreshTokens/:email", tokenController.getTokenByEmail);
+router.get("/refreshTokens", tokenController.browse);
+router.post("/refreshTokens/", tokenController.add);
+router.put("/refreshTokens/:email", tokenController.edit);
+router.delete("/refreshTokens/:email", tokenController.remove);
+
+/* router.use(verifyToken); */
+
+router.get("/users", userController.browse);
+
+router.post("/refresh", refresh);
+router.post("/checkRefreshToken", checkRefreshToken);
+
+// Créez la route pour le rafraîchissement du token
 
 module.exports = router;
