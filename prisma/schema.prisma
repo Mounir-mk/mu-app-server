@@ -27,9 +27,17 @@ model User {
   feedbacks         FeedBack[]
   managedTeam       Team?
   answeredQuestions AnsweredQuestion[]
+  RefreshToken      RefreshToken[]
 
   @@index([teamId], name: "user_teamId_idx")
   @@index([companyId], name: "user_companyId_idx")
+}
+
+model RefreshToken {
+  id     Int    @id @default(autoincrement())
+  token  String @unique @db.VarChar(500)
+  userId Int
+  User   User   @relation(fields: [userId], references: [id])
 }
 
 model Team {
