@@ -38,6 +38,13 @@ const refreshTokens = async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
+    console.log("refreshToken SentByClient", refreshToken);
+
+    const refreshTokensIndb = await prisma.refreshToken.findMany({
+      where: { userId: user.id },
+    });
+    console.error("refreshTokensIndb", refreshTokensIndb[0].token);
+
     const storedRefreshToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
@@ -60,16 +67,18 @@ const refreshTokens = async (req, res) => {
       newAccessTokenPayload,
       process.env.JWT_SECRET,
       {
-        expiresIn: "1m",
+        expiresIn: 60,
       }
     ); // expires in 1 minute
     const newRefreshToken = jwt.sign(
       newRefreshTokenPayload,
       process.env.JWT_SECRET,
       {
-        expiresIn: "5m",
+        expiresIn: 300,
       }
     ); // expires in 5 minutes
+
+    console.warn("newRefreshToken", newRefreshToken);
 
     // Use Prisma transaction to delete old and create new refresh token
     await prisma.$transaction([
@@ -85,10 +94,11 @@ const refreshTokens = async (req, res) => {
     ]);
 
     res.json({
+      success: true,
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-      newAccessTokenExpiresIn: "1m",
-      newRefreshTokenExpiresIn: "5m",
+      newAccessTokenExpiresIn: 60,
+      newRefreshTokenExpiresIn: 300,
     });
   } catch (err) {
     console.error(err);
@@ -114,13 +124,13 @@ const verifyPassword = async (req, res) => {
         type: "refresh",
       };
       const accessToken = jwt.sign(accessTokenPayload, process.env.JWT_SECRET, {
-        expiresIn: "1m",
+        expiresIn: 60,
       }); // expires in 1 minute
       const refreshToken = jwt.sign(
         refreshTokenPayload,
         process.env.JWT_SECRET,
         {
-          expiresIn: "5m",
+          expiresIn: 300,
         }
       ); // expires in 5 minutes
 
