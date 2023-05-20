@@ -40,10 +40,11 @@ const refreshTokens = async (req, res) => {
     }
     console.log("refreshToken SentByClient", refreshToken);
 
-    const refreshTokensIndb = await prisma.refreshToken.findMany({
-      where: { userId: user.id },
+    const refreshTokensIndb = await prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
     });
-    console.error("refreshTokensIndb", refreshTokensIndb[0].token);
+
+    console.log("refreshTokensIndb", refreshTokensIndb);
 
     const storedRefreshToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
@@ -134,6 +135,18 @@ const verifyPassword = async (req, res) => {
         }
       ); // expires in 5 minutes
 
+      // Find existing refresh token for user
+      const existingRefreshToken = await prisma.refreshToken.findUnique({
+        where: { userId: user.id },
+      });
+
+      // Delete existing refresh token if it exists
+      if (existingRefreshToken) {
+        await prisma.refreshToken.delete({
+          where: { id: existingRefreshToken.id },
+        });
+      }
+
       // Store the refresh token in the database
       await prisma.refreshToken.create({
         data: {
@@ -153,6 +166,23 @@ const verifyPassword = async (req, res) => {
     } else {
       res.status(401).json({ message: "Invalid credentials" });
     }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const logout = async (req, res) => {
+  const { user } = req.body;
+  console.log(user);
+  try {
+    // Delete refresh token for user
+    await prisma.refreshToken.delete({
+      where: { userId: user.id },
+    });
+
+    // Now you can send a response back indicating successful logout
+    res.json({ message: "Logout successful" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
@@ -187,4 +217,5 @@ module.exports = {
   verifyPassword,
   verifyToken,
   refreshTokens,
+  logout,
 };

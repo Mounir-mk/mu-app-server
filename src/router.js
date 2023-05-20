@@ -11,6 +11,7 @@ const {
   verifyPassword,
   hashPassword,
   refreshTokens,
+  logout,
 } = require("./services/auth");
 
 router.post("/users", hashPassword, userController.register);
@@ -33,6 +34,7 @@ router.post(
   verifyPassword
 );
 router.post("/token", refreshTokens);
+router.post("/users/logout", logout);
 
 const teamController = require("./controllers/teamControllers");
 
