@@ -149,7 +149,86 @@ async function browse(req, res) {
   }
 }
 
+const getTeamByUserId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const team = await prisma.team.findFirst({
+      where: {
+        managerId: parseInt(id, 10),
+      },
+      include: {
+        manager: true,
+        users: true,
+        invitations: true,
+      },
+    });
+
+    const teamWithDetails = {
+      id: team.id,
+      name: team.name,
+      numberOfEmployees: team.users.length,
+      employee: team.users.map((user) => ({
+        id: user.id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+      })),
+      max_size: team.max_size,
+      invitationToken: team.invitations[0]?.token || "No Token",
+    };
+
+    res.status(200).json(teamWithDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const edit = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    const team = await prisma.team.update({
+      where: {
+        id: parseInt(id, 10),
+      },
+      data: {
+        name,
+      },
+    });
+
+    res.status(200).json(team);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const destroy = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const team = await prisma.team.delete({
+      where: {
+        id: parseInt(id, 10),
+      },
+    });
+
+    res.status(200).json({
+      team,
+      message: "Team deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   createTeam,
   browse,
+  getTeamByUserId,
+  edit,
+  destroy,
 };

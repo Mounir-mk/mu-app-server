@@ -19,7 +19,7 @@ model User {
   date_of_birth     DateTime?
   description       String?
   role              UserRole
-  team              Team?              @relation("teamEmployees", fields: [teamId], references: [id])
+  team              Team?              @relation("teamEmployees", fields: [teamId], references: [id], onDelete: SetNull, onUpdate: SetNull)
   teamId            Int?
   company           Company?           @relation(fields: [companyId], references: [id])
   companyId         Int?
@@ -44,9 +44,9 @@ model Team {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   max_size    Int
-  manager     User?        @relation(fields: [managerId], references: [id])
+  manager     User?        @relation(fields: [managerId], references: [id], onDelete: SetNull, onUpdate: SetNull)
   managerId   Int?         @unique
-  company     Company?     @relation(fields: [companyId], references: [id])
+  company     Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull, onUpdate: SetNull)
   companyId   Int?
   users       User[]       @relation("teamEmployees")
   invitations Invitation[]
@@ -56,7 +56,7 @@ model Team {
 
 model Invitation {
   id          Int    @id @default(autoincrement())
-  team        Team   @relation(fields: [teamId], references: [id])
+  team        Team   @relation(fields: [teamId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   teamId      Int
   usage_limit Int
   used_times  Int    @default(0)
