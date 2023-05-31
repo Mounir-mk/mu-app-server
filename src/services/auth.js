@@ -38,13 +38,6 @@ const refreshTokens = async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
-    console.log("refreshToken SentByClient", refreshToken);
-
-    const refreshTokensIndb = await prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
-    });
-
-    console.log("refreshTokensIndb", refreshTokensIndb);
 
     const storedRefreshToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
@@ -174,7 +167,6 @@ const verifyPassword = async (req, res) => {
 
 const logout = async (req, res) => {
   const { user } = req.body;
-  console.log(user);
   try {
     // Delete refresh token for user
     await prisma.refreshToken.delete({
