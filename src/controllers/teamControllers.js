@@ -69,6 +69,11 @@ const createTeam = async (req, res) => {
             },
           },
         },
+        users: {
+          connect: {
+            id: manager.id,
+          },
+        },
       },
     });
     console.warn(`Created team: ${team.name}`);
@@ -154,7 +159,11 @@ const getTeamByUserId = async (req, res) => {
   try {
     const team = await prisma.team.findFirst({
       where: {
-        managerId: parseInt(id, 10),
+        users: {
+          some: {
+            id: parseInt(id, 10),
+          },
+        },
       },
       include: {
         manager: true,
@@ -162,6 +171,10 @@ const getTeamByUserId = async (req, res) => {
         invitations: true,
       },
     });
+
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
 
     const teamWithDetails = {
       id: team.id,
@@ -182,6 +195,7 @@ const getTeamByUserId = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
+  return null;
 };
 
 const edit = async (req, res) => {
