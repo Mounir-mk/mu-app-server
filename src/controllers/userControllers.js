@@ -28,7 +28,7 @@ const register = async (req, res) => {
       firstname,
       lastname,
       email,
-      hashed_password: req.body.hashed_password, // Use the hashed password from the middleware
+      hashed_password: req.body.hashedPassword, // Use the hashed password from the middleware
       date_of_birth: new Date(dateOfBirth).toISOString(),
       description: description || null,
       role: "employee",

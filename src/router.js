@@ -1,7 +1,4 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -15,17 +12,6 @@ const {
 } = require("./services/auth");
 
 router.post("/users", hashPassword, userController.register);
-router.post("/register", hashPassword, async (req, res) => {
-  const { email, hashedPassword } = req.body;
-  const user = await prisma.user.create({
-    data: {
-      email,
-      hashed_password: hashedPassword,
-      role: "admin",
-    },
-  });
-  res.json(user);
-});
 
 router.get("/users", userController.browse);
 router.post(
